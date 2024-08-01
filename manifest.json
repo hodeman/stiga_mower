@@ -1,0 +1,9 @@
+{
+  "domain": "stiga_mower",
+  "name": "Stiga Mower",
+  "version": "1.0.0",
+  "documentation": "https://www.example.com/documentation",
+  "dependencies": [],
+  "codeowners": [],
+  "requirements": []
+}

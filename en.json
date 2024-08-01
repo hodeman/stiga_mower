@@ -1,0 +1,20 @@
+{
+    "title": "STIGA Mower",
+    "config": {
+      "step": {
+        "user": {
+          "title": "STIGA Mower",
+          "description": "Set up your STIGA Mower integration.",
+          "data": {
+            "email": "Email",
+            "password": "Password",
+            "api_key": "API Key"
+          }
+        }
+      },
+      "error": {
+        "auth": "Authentication failed"
+      }
+    }
+  }
+  

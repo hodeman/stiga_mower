@@ -1,0 +1,1 @@
+DOMAIN = "stiga_mower"
