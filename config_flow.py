@@ -27,7 +27,6 @@ class StigaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             # Validate and save user input
             email = user_input['email']
             password = user_input['password']
-            
             # Attempt to authenticate
             session = async_get_clientsession(self.hass)
             api = StigaAPI(email, password, session)
@@ -43,7 +42,7 @@ class StigaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=vol.Schema({
                 vol.Required("email"): str,
-                vol.Required("password"): str
+                vol.Required("password"): str,
             }),
             errors=errors,
         )
