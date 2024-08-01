@@ -1,6 +1,7 @@
 {
   "domain": "stiga_mower",
   "name": "STIGA Mower",
+  "version": "1.0.0",
   "config_flow": true,
   "documentation": "https://www.example.com",
   "requirements": [],
