@@ -43,26 +43,32 @@ class StigaAPI:
         url = 'https://connectivity-production.stiga.com/api/garage/integration'
         headers = {'Authorization': f'Bearer {self.token}'}
         _LOGGER.debug(f"Fetching devices from {url} with token {self.token}")
-        async with self.session.get(url, headers=headers) as response:
-            if response.status == 200:
+        try:
+            async with self.session.get(url, headers=headers) as response:
                 data = await response.json()
-                _LOGGER.info(f"Devices fetched successfully: {data}")
-                return data
-            else:
-                _LOGGER.error(f"Failed to fetch devices with status: {response.status}")
-                return []
+                if response.status == 200:
+                    _LOGGER.info(f"Devices fetched successfully: {data}")
+                    return data
+                else:
+                    _LOGGER.error(f"Failed to fetch devices with status: {response.status}")
+                    return []
+        except Exception as e:
+            _LOGGER.error(f"Error fetching devices: {e}")
+            return []
 
     async def get_device_status(self, uuid):
-        """Fetch the status for a specific device."""
+        """Fetch status for a specific device."""
         url = f'https://connectivity-production.stiga.com/api/devices/{uuid}/status'
         headers = {'Authorization': f'Bearer {self.token}'}
         _LOGGER.debug(f"Fetching status for device {uuid} from {url} with token {self.token}")
         async with self.session.get(url, headers=headers) as response:
+            data = await response.json()
             if response.status == 200:
-                return await response.json()
+                _LOGGER.info(f"Status fetched successfully for device {uuid}: {data}")
+                return data
             else:
                 _LOGGER.error(f"Failed to fetch status for device {uuid} with status: {response.status}")
-                return None
+                return {}
 
     async def start_mowing(self, uuid):
         """Send command to start mowing."""
