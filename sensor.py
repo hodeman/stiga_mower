@@ -5,34 +5,23 @@ from .const import DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    """Set up the Stiga Mower sensor platform."""
-    api = hass.data[DOMAIN][entry.entry_id]['api']
+    """Set up STIGA Mower sensor based on a config entry."""
+    api = hass.data[DOMAIN][entry.entry_id]
     devices_response = await api.get_devices()
-
-    if devices_response and 'data' in devices_response:
-        devices = devices_response['data']
-        _LOGGER.debug(f"Device data: {devices}")
-
-        entities = []
-        for device in devices:
-            device_info = device['attributes']
-            entity = StigaMowerEntity(device_info, api)
-            entities.append(entity)
-        async_add_entities(entities)
-    else:
+    devices = devices_response.get('data', [])
+    if not devices:
         _LOGGER.error("No devices found or unable to fetch devices.")
+        return
+
+    _LOGGER.debug(f"Device data: {devices}")
+    sensors = [StigaMowerEntity(device['attributes'], api) for device in devices]
+    async_add_entities(sensors, True)
 
 class StigaMowerEntity(Entity):
     def __init__(self, device_info, api):
         self._device_info = device_info
-        self.api = api
         self._state = None
-        self._attributes = {
-            'uuid': device_info['uuid'],
-            'product_code': device_info['product_code'],
-            'serial_number': device_info['serial_number'],
-            'device_type': device_info['device_type'],
-        }
+        self.api = api
 
     @property
     def name(self):
@@ -47,18 +36,18 @@ class StigaMowerEntity(Entity):
         return self._state
 
     @property
-    def extra_state_attributes(self):
-        return self._attributes
+    def device_state_attributes(self):
+        return {
+            'uuid': self._device_info.get('uuid'),
+            'product_code': self._device_info.get('product_code'),
+            'serial_number': self._device_info.get('serial_number'),
+            'device_type': self._device_info.get('device_type')
+        }
 
     async def async_update(self):
         """Fetch new state data for the sensor."""
         try:
             status = await self.api.get_device_status(self._device_info['uuid'])
-            if status:
-                self._state = status.get('state', 'unknown')
-                self._attributes.update(status)
-            else:
-                self._state = 'unknown'
+            self._state = status.get('state', 'unknown')
         except Exception as e:
             _LOGGER.error(f"Error updating sensor {self._device_info.get('name')}: {e}")
-            self._state = 'unknown'
