@@ -1,53 +1,61 @@
 import logging
-from homeassistant.helpers.entity import Entity
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    """Set up STIGA Mower sensor based on a config entry."""
-    api = hass.data[DOMAIN][entry.entry_id]
-    devices_response = await api.get_devices()
-    devices = devices_response.get('data', [])
-    if not devices:
-        _LOGGER.error("No devices found or unable to fetch devices.")
-        return
+    data = hass.data[DOMAIN][entry.entry_id]
+    api = data["api"]
+    coordinator = data["coordinator"]
+    devices_response = coordinator.data
+    _LOGGER.debug(f"Devices fetched: {devices_response}")
 
-    _LOGGER.debug(f"Device data: {devices}")
-    sensors = [StigaMowerEntity(device['attributes'], api) for device in devices]
-    async_add_entities(sensors, True)
+    entities = []
+    if isinstance(devices_response, dict) and 'data' in devices_response:
+        devices = devices_response['data']
+        for device in devices:
+            attributes = device.get('attributes', {})
+            if attributes:
+                uuid = attributes.get('uuid')
+                serial_number = attributes.get('serial_number')
+                name = attributes.get('name')
+                entities.append(StigaMowerSensor(coordinator, uuid, serial_number, name, api))
+            else:
+                _LOGGER.error(f"Unexpected device attributes format: {device}")
+    else:
+        _LOGGER.error(f"Unexpected devices format: {devices_response}")
 
-class StigaMowerEntity(Entity):
-    def __init__(self, device_info, api):
-        self._device_info = device_info
-        self._state = None
+    async_add_entities(entities, True)
+
+class StigaMowerSensor(CoordinatorEntity, SensorEntity):
+    def __init__(self, coordinator, uuid, serial_number, name, api):
+        """Initialize the sensor."""
+        super().__init__(coordinator)
         self.api = api
-
-    @property
-    def name(self):
-        return self._device_info.get('name')
-
-    @property
-    def unique_id(self):
-        return self._device_info.get('uuid')
+        self.uuid = uuid
+        self.serial_number = serial_number
+        self._attr_name = name  # Use only the actual name of the device
+        self._attr_unique_id = uuid
+        self._state = None
 
     @property
     def state(self):
+        """Return the state of the sensor."""
         return self._state
 
     @property
-    def device_state_attributes(self):
+    def extra_state_attributes(self):
+        """Return the state attributes."""
         return {
-            'uuid': self._device_info.get('uuid'),
-            'product_code': self._device_info.get('product_code'),
-            'serial_number': self._device_info.get('serial_number'),
-            'device_type': self._device_info.get('device_type')
+            'serial_number': self.serial_number,
+            'uuid': self.uuid
         }
 
     async def async_update(self):
         """Fetch new state data for the sensor."""
-        try:
-            status = await self.api.get_device_status(self._device_info['uuid'])
-            self._state = status.get('state', 'unknown')
-        except Exception as e:
-            _LOGGER.error(f"Error updating sensor {self._device_info.get('name')}: {e}")
+        status = await self.api.get_device_status(self.uuid)
+        if status:
+            self._state = status.get('state')
