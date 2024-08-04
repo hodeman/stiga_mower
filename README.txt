@@ -1,6 +1,22 @@
-- last opp mappa under custom_components
+- last opp mappa under custom_components, eller som custom resporotie i HACS
 - finn UUID under attributter i integrasjonen
-- rediger scripts.yaml i HA. Se egen fil: skriptet.txt. Forandre til din UUID. 
+- rediger scripts.yaml i HA. Se egen fil:  Forandre til din UUID. Skriptet er som følger:
+start_mower:
+  alias: Start Mower
+  sequence:
+    - service: stiga_mower.start_mowing
+      data_template:
+        uuid: >
+          {{ states('input_select.stiga_mower') }}
+
+stop_mower:
+  alias: Stop Mower
+  sequence:
+    - service: stiga_mower.stop_mowing
+      data_template:
+        uuid: >
+          {{ states('input_select.stiga_mower') }}
+
 - rediger configuration.yaml. skriv følgende:
 input_select:
   stiga_mower:
