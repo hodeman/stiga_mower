@@ -1,7 +1,8 @@
 import logging
 from datetime import timedelta
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from .const import DOMAIN
 from .stiga_api import StigaAPI
@@ -19,7 +20,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         try:
             return await api.get_devices()
         except Exception as err:
-            raise UpdateFailed(f"Error fetching data: {err}")
+            raise UpdateFailed(f"Error communicating with API: {err}")
 
     coordinator = DataUpdateCoordinator(
         hass,
@@ -29,11 +30,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         update_interval=timedelta(minutes=1),
     )
 
-    await coordinator.async_config_entry_first_refresh()
+    await coordinator.async_refresh()
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
         "api": api,
-        "coordinator": coordinator
+        "coordinator": coordinator,
     }
 
     async def handle_start_mowing(call):
@@ -51,7 +52,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     hass.services.async_register(DOMAIN, 'start_mowing', handle_start_mowing)
     hass.services.async_register(DOMAIN, 'stop_mowing', handle_stop_mowing)
 
-    hass.config_entries.async_setup_platforms(entry, ['sensor'])
+    await hass.config_entries.async_forward_entry_setups(entry, ['sensor'])
 
     return True
 
