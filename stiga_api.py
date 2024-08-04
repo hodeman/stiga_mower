@@ -1,5 +1,4 @@
 import aiohttp
-import async_timeout
 import logging
 
 _LOGGER = logging.getLogger(__name__)
@@ -9,8 +8,8 @@ class StigaAPI:
         self.session = session
         self.email = email
         self.password = password
-        # Hard-code the API key
         self.api_key = "AIzaSyCPtRBU_hwWZYsguHp9ucGrfNac0kXR6ug"
+        self.token = None
 
     async def authenticate(self):
         """Authenticate with Firebase to obtain a bearer token for Stiga API."""
@@ -37,7 +36,7 @@ class StigaAPI:
 
     async def get_devices(self):
         """Retrieve list of devices from Stiga."""
-        if not hasattr(self, 'token'):
+        if not self.token:
             _LOGGER.error("API token is not set. Authentication may have failed.")
             return []
         url = 'https://connectivity-production.stiga.com/api/garage/integration'
@@ -51,7 +50,7 @@ class StigaAPI:
             else:
                 _LOGGER.error(f"Failed to fetch devices with status: {response.status}")
                 return []
-    
+
     async def get_device_status(self, uuid):
         """Fetch the status for a specific device."""
         url = f'https://connectivity-production.stiga.com/api/devices/{uuid}/status'
