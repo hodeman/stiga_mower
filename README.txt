@@ -27,3 +27,5 @@ input_select:
       - "uuid-of-mower-3"
     initial: "uuid-of-mower-1"
     icon: mdi:robot-mower
+
+videre ønsker: mer automatisert installasjon, navn i scriptet, ikke uuid og ikke minst å få status til å funke
