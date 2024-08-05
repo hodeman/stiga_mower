@@ -10,7 +10,7 @@ class StigaAPI:
         self.email = email
         self.password = password
         # Hard-code the API key
-        self.api_key = "AIzaSyCPtRBU_hwWZYsguHp9ucGrfNac0kXR6ug"
+        self.api_key = "GET API FROM HERE: https://www.stiga.com/int/stiga-integration-api"
         self.token = None
 
     async def authenticate(self):
