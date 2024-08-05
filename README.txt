@@ -53,6 +53,8 @@ cards:
 
 To fix:
 - Status of mower is not working
+- Ability to stop it while going to start point. 
+- Note: stop buttin is actually "return to base"
 - It seems that the stop button only works if mower is actually mowing, not when calculation route or driving towars starting points (for now)
 - Names instead of UUID in inpout selector
 - More functionalities
