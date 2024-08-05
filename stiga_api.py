@@ -1,4 +1,5 @@
 import aiohttp
+import async_timeout
 import logging
 
 _LOGGER = logging.getLogger(__name__)
@@ -8,6 +9,7 @@ class StigaAPI:
         self.session = session
         self.email = email
         self.password = password
+        # Hard-code the API key
         self.api_key = "AIzaSyCPtRBU_hwWZYsguHp9ucGrfNac0kXR6ug"
         self.token = None
 
@@ -37,8 +39,7 @@ class StigaAPI:
     async def get_devices(self):
         """Retrieve list of devices from Stiga."""
         if not self.token:
-            _LOGGER.error("API token is not set. Authentication may have failed.")
-            return []
+            await self.authenticate()
         url = 'https://connectivity-production.stiga.com/api/garage/integration'
         headers = {'Authorization': f'Bearer {self.token}'}
         _LOGGER.debug(f"Fetching devices from {url} with token {self.token}")
@@ -47,6 +48,10 @@ class StigaAPI:
                 data = await response.json()
                 _LOGGER.info(f"Devices fetched successfully: {data}")
                 return data
+            elif response.status == 401:
+                _LOGGER.warning("Token expired or unauthorized, re-authenticating...")
+                await self.authenticate()
+                return await self.get_devices()
             else:
                 _LOGGER.error(f"Failed to fetch devices with status: {response.status}")
                 return []
@@ -59,6 +64,10 @@ class StigaAPI:
         async with self.session.get(url, headers=headers) as response:
             if response.status == 200:
                 return await response.json()
+            elif response.status == 401:
+                _LOGGER.warning("Token expired or unauthorized, re-authenticating...")
+                await self.authenticate()
+                return await self.get_device_status(uuid)
             else:
                 _LOGGER.error(f"Failed to fetch status for device {uuid} with status: {response.status}")
                 return None
