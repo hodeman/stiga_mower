@@ -1,4 +1,5 @@
 - upload folder under custom_components, or use HACS
+- edit stiga_api.py and enter the API. (Studio Code Servcer is a great tool for this). Restart HA.
 - find UUID under attributes in the integration
 - edit scripts.yaml in HA. Use your own UUID in the script. This is the script:
 start_mower:
