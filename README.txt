@@ -1,4 +1,5 @@
 I wanted to see if AI could make me an integration for Home Assistant to control Stiga Autonomous robotic lawn mower (A-series)
+For now, it only works to start and stop the mowing session (see below)
 
 - upload folder under custom_components, or use HACS
 - edit stiga_api.py and enter the API. (Studio Code Servcer is a great tool for this). Restart HA.
@@ -54,10 +55,10 @@ cards:
           service: script.stop_mower
 
 To fix:
-- Status of mower is not working
+- Status of mower (if possible)
 - Ability to stop it while going to start point. 
-- Note: stop buttin is actually "return to base"
-- It seems that the stop button only works if mower is actually mowing, not when calculation route or driving towars starting points (for now)
-- Names instead of UUID in inpout selector
+- Note: stop button is actually "return to base"
+- It seems that the stop button only works if mower is actually mowing, not when calculating route or driving towars starting points (for now)
+- Names instead of UUID in input selector
 - More functionalities
 
