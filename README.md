@@ -55,10 +55,10 @@ cards:
           service: script.stop_mower
 
 To fix:
-- Status of mower is not working
+- Status of mower (if possible)
 - Ability to stop it while going to start point. 
-- Note: stop buttin is actually "return to base"
-- It seems that the stop button only works if mower is actually mowing, not when calculation route or driving towars starting points (for now)
-- Names instead of UUID in inpout selector
+- Note: stop button is actually "return to base"
+- It seems that the stop button only works if mower is actually mowing, not when calculating route or driving towars starting points (for now)
+- Names instead of UUID in input selector
 - More functionalities
 
