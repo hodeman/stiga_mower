@@ -1,3 +1,5 @@
+I wanted to see if AI could make me an integration for Home Assistant to control Stiga Autonomous robotic lawn mower (A-series)
+
 - upload folder under custom_components, or use HACS
 - edit stiga_api.py and enter the API. (Studio Code Servcer is a great tool for this). Restart HA.
 - find UUID under attributes in the integration
