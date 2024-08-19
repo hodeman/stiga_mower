@@ -40,6 +40,13 @@ class StigaMowerSensor(CoordinatorEntity, SensorEntity):
         self._attr_name = name  # Use only the actual name of the device
         self._attr_unique_id = uuid
         self._state = None
+        self._attr_extra_state_attributes = {
+            'serial_number': self.serial_number,
+            'uuid': self.uuid,
+            'mowing_mode': None,
+            'current_action': None,
+            'battery_percentage': None
+        }
 
     @property
     def state(self):
@@ -49,13 +56,13 @@ class StigaMowerSensor(CoordinatorEntity, SensorEntity):
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        return {
-            'serial_number': self.serial_number,
-            'uuid': self.uuid
-        }
+        return self._attr_extra_state_attributes
 
     async def async_update(self):
         """Fetch new state data for the sensor."""
         status = await self.api.get_device_status(self.uuid)
         if status:
-            self._state = status.get('state')
+            self._attr_extra_state_attributes['mowing_mode'] = status.get('mowing_mode')
+            self._attr_extra_state_attributes['current_action'] = status.get('current_action')
+            self._attr_extra_state_attributes['battery_percentage'] = status.get('battery_percentage')
+            self._state = status.get('current_action')
