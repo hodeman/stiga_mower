@@ -11,13 +11,13 @@ async def async_setup_entry(hass, entry, async_add_entities):
     data = hass.data[DOMAIN][entry.entry_id]
     api = data["api"]
 
-    # Setup the DataUpdateCoordinator to refresh data periodically
+    # Setup the DataUpdateCoordinator to refresh data every 5 minutes
     coordinator = DataUpdateCoordinator(
         hass,
         _LOGGER,
         name="stiga_mower",
         update_method=api.get_devices,
-        update_interval=timedelta(minutes=5),  # Adjust this as needed
+        update_interval=timedelta(minutes=5),
     )
     await coordinator.async_config_entry_first_refresh()
 
@@ -51,6 +51,13 @@ class StigaMowerSensor(CoordinatorEntity, SensorEntity):
         self._attr_name = name  # Use only the actual name of the device
         self._attr_unique_id = uuid
         self._state = None
+        self._attr_extra_state_attributes = {
+            'serial_number': self.serial_number,
+            'uuid': self.uuid,
+            'mowing_mode': None,
+            'current_action': None,
+            'battery_percentage': None
+        }
 
     @property
     def state(self):
@@ -60,13 +67,13 @@ class StigaMowerSensor(CoordinatorEntity, SensorEntity):
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        return {
-            'serial_number': self.serial_number,
-            'uuid': self.uuid
-        }
+        return self._attr_extra_state_attributes
 
     async def async_update(self):
         """Fetch new state data for the sensor."""
         status = await self.api.get_device_status(self.uuid)
         if status:
-            self._state = status.get('state')
+            self._attr_extra_state_attributes['mowing_mode'] = status.get('mowing_mode')
+            self._attr_extra_state_attributes['current_action'] = status.get('current_action')
+            self._attr_extra_state_attributes['battery_percentage'] = status.get('battery_percentage')
+            self._state = status.get('current_action')
