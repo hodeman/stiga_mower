@@ -1,6 +1,7 @@
 import aiohttp
 import async_timeout
 import logging
+import json  # Add this import for JSON parsing
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -9,12 +10,10 @@ class StigaAPI:
         self.session = session
         self.email = email
         self.password = password
-        # Hard-code the API key
-        self.api_key = "GET API FROM HERE: https://www.stiga.com/int/stiga-integration-api"
+        self.api_key = "AIzaSyCPtRBU_hwWZYsguHp9ucGrfNac0kXR6ug"
         self.token = None
 
     async def authenticate(self):
-        """Authenticate with Firebase to obtain a bearer token for Stiga API."""
         url = 'https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword'
         payload = {
             'email': self.email,
@@ -37,7 +36,6 @@ class StigaAPI:
             raise
 
     async def get_devices(self):
-        """Retrieve list of devices from Stiga."""
         if not self.token:
             await self.authenticate()
         url = 'https://connectivity-production.stiga.com/api/garage/integration'
@@ -57,13 +55,23 @@ class StigaAPI:
                 return []
 
     async def get_device_status(self, uuid):
-        """Fetch the status for a specific device."""
-        url = f'https://connectivity-production.stiga.com/api/devices/{uuid}/status'
+        url = f'https://connectivity-production.stiga.com/api/devices/{uuid}/mqttstatus'
         headers = {'Authorization': f'Bearer {self.token}'}
         _LOGGER.debug(f"Fetching status for device {uuid} from {url} with token {self.token}")
         async with self.session.get(url, headers=headers) as response:
             if response.status == 200:
-                return await response.json()
+                data = await response.json()
+                
+                # Extract relevant information
+                device_info = data['data']['attributes']['device_info']
+                status_description = json.loads(device_info['status']['description'])
+                battery_description = json.loads(device_info['battery']['description'])
+                
+                return {
+                    "mowing_mode": status_description.get("mowingMode"),
+                    "current_action": status_description.get("currentAction"),
+                    "battery_percentage": battery_description.get("percentage")
+                }
             elif response.status == 401:
                 _LOGGER.warning("Token expired or unauthorized, re-authenticating...")
                 await self.authenticate()
@@ -73,13 +81,11 @@ class StigaAPI:
                 return None
 
     async def start_mowing(self, uuid):
-        """Send command to start mowing."""
         url = f'https://connectivity-production.stiga.com/api/devices/{uuid}/command/startsession'
         headers = {'Authorization': f'Bearer {self.token}'}
         await self.session.post(url, headers=headers)
 
     async def stop_mowing(self, uuid):
-        """Send command to stop mowing."""
         url = f'https://connectivity-production.stiga.com/api/devices/{uuid}/command/endsession'
         headers = {'Authorization': f'Bearer {self.token}'}
         await self.session.post(url, headers=headers)
