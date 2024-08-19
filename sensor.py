@@ -1,10 +1,19 @@
 import logging
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-
+from datetime import timedelta
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
+
+# Define your coordinator with a more frequent update interval
+coordinator = DataUpdateCoordinator(
+    hass,
+    _LOGGER,
+    name="stiga_mower",
+    update_method=api.get_devices,
+    update_interval=timedelta(minutes=5),  # Adjust this to update more frequently
+)
 
 async def async_setup_entry(hass, entry, async_add_entities):
     data = hass.data[DOMAIN][entry.entry_id]
