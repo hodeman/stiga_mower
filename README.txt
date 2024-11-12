@@ -31,6 +31,7 @@ input_select:
       - "uuid-of-mower-3"
     initial: "uuid-of-mower-1"
     icon: mdi:robot-mower
+(for now, find uuid under attribudes, put them manually in here)
 
 - make buttons in Lovelace, for example:
 type: vertical-stack
