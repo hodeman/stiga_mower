@@ -55,11 +55,13 @@ cards:
           action: call-service
           service: script.stop_mower
 
+Restart HomeAssistant!
+
 To fix:
 - Status of mower (if possible) - Fixed (status and more attributes, batterystatus updated every 5 minutes)
 - Ability to stop it while going to start point. 
 - Note: stop button is actually "return to base"
 - It seems that the stop button only works if mower is actually mowing, not when calculating route or driving towars starting points (for now)
-- Names instead of UUID in input selector
+- Names instead of UUID in input selector, and read UUID automaticly to be inserted in input selector
 - More functionalities
 
