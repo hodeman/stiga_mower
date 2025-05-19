@@ -62,5 +62,31 @@ To fix:
 - Ability to stop it while going to start point. 
 - Note: stop button is actually "return to base"
 - It seems that the stop button only works if mower is actually mowing, not when calculating route or driving towars starting points (for now)
-- Names instead of UUID in input selector, and read UUID automaticly to be inserted in input selector
-- More functionalities
+
+NEW 2025:
+- To show friendly name instead of UUID in input selector:
+configuration.yaml:
+input_select:
+  stiga_mower:
+    name: Select Mower
+    options:
+      - "ROBOTNAME1"
+      - "ROBOTNAME2"
+    initial: "ROBOTNAME2"
+    icon: mdi:robot-mower
+start AND stop-script:
+alias: Start Selected Mower
+sequence:
+  - variables:
+      mower_uuids:
+        ROBOTNAME1: ROBOTIIUD
+        ROBOTNAME2: ROBOTIIUD
+      selected_mower: "{{ states('input_select.stiga_mower') }}"
+      uuid: "{{ mower_uuids[selected_mower] }}"
+  - data:
+      uuid: "{{ uuid }}"
+    action: stiga_mower.start_mowing (or stop if stop-script)
+
+Example dashboard: since I have multiple robots in garage, I made a verticle stack, chose each attribute to show for each robot
+
+    
