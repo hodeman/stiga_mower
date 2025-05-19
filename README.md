@@ -85,8 +85,7 @@ sequence:
       uuid: "{{ mower_uuids[selected_mower] }}"
   - data:
       uuid: "{{ uuid }}"
-    action: stiga_mower.start_mowing (or stop if stop-script)
-
-Example dashboard: since I have multiple robots in garage, I made a verticle stack, chose each attribute to show for each robot
+    action: stiga_mower.start_mowing
+![looks2](https://github.com/user-attachments/assets/e467add5-7e24-4844-8487-14ad172ce801)
 
     
