@@ -3,7 +3,7 @@
   "name": "STIGA Mower",
   "version": "1.0.0",
   "config_flow": true,
-  "documentation": "https://www.example.com",
+  "documentation": "https://github.com/hodeman/stiga_mower",
   "requirements": [],
   "dependencies": [],
   "codeowners": []
